@@ -1,0 +1,25 @@
+#!/bin/bash
+
+INPUT=$1
+
+if [[ ! -z $INPUT ]]
+then
+   while read LINE; do
+       #echo "Line No. $n : $LINE"
+       FILE=$(find ./* -type f -name "$LINE.*" | awk '{ gsub(/\.\//,""); print }')
+       NUMBERPAGES=$(exiftool -T -filename -PageCount -s3 $FILE)
+       NUMBERPAGES=$(echo "$NUMBERPAGES" | awk '{ print $2 }')
+       OCR=$(pdffonts "$FILE" | tail -n +3 | cut -d ' ' -f1 | sort | uniq)
+       #echo "$FILE $NUMBERPAGES"
+
+       if [[ -z "$OCR" ]]
+       then
+           echo "$LINE, $NUMBERPAGES, NO TIENE OCR"
+       else
+           echo "$LINE, $NUMBERPAGES, TIENE OCR"
+       fi
+
+   done < $INPUT
+else
+   echo "Esta vacio"
+fi
